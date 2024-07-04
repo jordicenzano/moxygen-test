@@ -47,6 +47,7 @@ function install_dependencies_linux() {
     libevent-dev  \
     libboost-all-dev \
     libgoogle-glog-dev \
+    libdouble-conversion-dev \
     gperf
 }
 
