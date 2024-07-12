@@ -527,7 +527,15 @@ void MoQSession::publish(
     XLOG(DBG4) << "New publish key, existing map size="
                << publishDataMap_.size();
     // New publishing key
-    XCHECK_EQ(payloadOffset, 0) << "Can't start publishing in the middle";
+
+    // This can happen if subscriber closes session abruptly, then:
+    // - wt_->createUniStream(); -> FAILS
+    // - We do not add this publishKey to publishDataMap_
+    // - Next portion of the object calls this function again with payloadOffset > 0
+    if (payloadOffset != 0) {
+      XLOG(DBG1) << __func__ << " Can't start publishing in the middle. Disgregard data for this new obj with payloadOffset = " << payloadOffset;
+      return;
+    }
 
     // Create a new stream (except for datagram)
     proxygen::WebTransport::StreamWriteHandle* stream = nullptr;
